@@ -1,0 +1,16 @@
+{
+  "name": "@lunchmonitor/cli",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "lunchmonitor": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --compile --outfile ./dist/lunchmonitor",
+    "dev": "bun run ./src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@lunchmonitor/core": "workspace:*"
+  }
+}

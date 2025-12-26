@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "lunchmoney": {
+    "apiToken": "${LUNCHMONEY_TOKEN}"
+  },
+  "notifications": {
+    "email": {
+      "enabled": true,
+      "smtp": {
+        "host": "smtp.gmail.com",
+        "port": 587,
+        "secure": false,
+        "auth": {
+          "user": "${SMTP_USER}",
+          "pass": "${SMTP_PASS}"
+        }
+      },
+      "from": "LunchMonitor <alerts@example.com>",
+      "to": ["your-email@example.com"]
+    },
+    "sms": {
+      "enabled": false,
+      "gateway": "verizon",
+      "phoneNumber": "5551234567"
+    }
+  },
+  "policies": [
+    {
+      "id": "00000000-0000-0000-0000-000000000001",
+      "name": "Default Budget Alert",
+      "enabled": true,
+      "scope": {
+        "type": "global"
+      },
+      "thresholds": [
+        {
+          "type": "percentage",
+          "operator": "gte",
+          "value": 80,
+          "message": "Warning: Budget at 80%"
+        },
+        {
+          "type": "percentage",
+          "operator": "gte",
+          "value": 100,
+          "message": "Critical: Budget exceeded!"
+        }
+      ],
+      "channels": ["email"],
+      "cooldown": {
+        "type": "once_per_threshold"
+      }
+    }
+  ],
+  "settings": {
+    "checkIntervalMinutes": 360,
+    "timezone": "America/New_York",
+    "quietHours": {
+      "start": "22:00",
+      "end": "08:00"
+    }
+  }
+}
