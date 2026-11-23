@@ -298,6 +298,38 @@ describe("evaluateBudgets", () => {
   });
 });
 
+describe("evaluateBudgets with category groups", () => {
+  const policy = (scope: LunchMonitorConfig["policies"][number]["scope"]) =>
+    createConfig([
+      {
+        id: "550e8400-e29b-41d4-a716-446655440001",
+        name: "Groups",
+        enabled: true,
+        scope,
+        thresholds: [{ type: "percentage", operator: "gte", value: 80 }],
+        channels: ["email"],
+      },
+    ]);
+  const group = createBudget(10, "Food", 500, 450, { is_group: true });
+  const child = createBudget(11, "Groceries", 500, 450, { group_id: 10, category_group_name: "Food" });
+  const unbudgetedChild = createBudget(12, "Dining", 0, 30, { group_id: 10 });
+
+  test("global policy alerts on the child, not also its group", () => {
+    const result = evaluateBudgets([group, child], policy({ type: "global" }), createState());
+    expect(result.triggeredAlerts.map((a) => a.categoryId)).toEqual([11]);
+  });
+
+  test("global policy alerts on a group budgeted only at group level", () => {
+    const result = evaluateBudgets([group, unbudgetedChild], policy({ type: "global" }), createState());
+    expect(result.triggeredAlerts.map((a) => a.categoryId)).toEqual([10]);
+  });
+
+  test("an explicit category policy can still target the group", () => {
+    const result = evaluateBudgets([group, child], policy({ type: "category", categoryIds: [10] }), createState());
+    expect(result.triggeredAlerts.map((a) => a.categoryId)).toEqual([10]);
+  });
+});
+
 describe("alertsToNotifications", () => {
   test("converts alert to notification", () => {
     const alerts = [

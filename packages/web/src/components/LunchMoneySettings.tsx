@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
 import type { LunchMonitorConfig } from "@lunchmonitor/core";
+import { resolveBaseUrl, DEFAULT_BASE_URL } from "@lunchmonitor/core/base-url";
 
 interface LunchMoneySettingsProps {
   config: LunchMonitorConfig["lunchmoney"];
@@ -27,8 +28,8 @@ export function LunchMoneySettings({ config, onChange }: LunchMoneySettingsProps
     setTestMessage("");
 
     try {
-      const baseUrl = config.baseUrl ?? "https://dev.lunchmoney.app";
-      const response = await fetch(`${baseUrl}/v1/me`, {
+      const baseUrl = resolveBaseUrl(config.baseUrl);
+      const response = await fetch(`${baseUrl}/me`, {
         headers: {
           Authorization: `Bearer ${config.apiToken}`,
         },
@@ -36,7 +37,7 @@ export function LunchMoneySettings({ config, onChange }: LunchMoneySettingsProps
 
       if (response.ok) {
         const user = await response.json();
-        const userName = decodeHtmlEntities(user.user_name);
+        const userName = decodeHtmlEntities(user.name);
         const budgetName = decodeHtmlEntities(user.budget_name);
         setTestStatus("success");
         setTestMessage(`Connected as ${userName} (${budgetName})`);
@@ -103,7 +104,7 @@ export function LunchMoneySettings({ config, onChange }: LunchMoneySettingsProps
             id="baseUrl"
             type="url"
             class="input"
-            placeholder="https://dev.lunchmoney.app"
+            placeholder={DEFAULT_BASE_URL}
             value={config.baseUrl ?? ""}
             onInput={(e) => {
               const value = (e.target as HTMLInputElement).value;

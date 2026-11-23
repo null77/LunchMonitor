@@ -1,5 +1,6 @@
 import { useState, useEffect } from "preact/hooks";
 import type { AlertPolicy, ThresholdConfig, PolicyScope } from "@lunchmonitor/core";
+import { resolveBaseUrl } from "@lunchmonitor/core/base-url";
 
 interface Category {
   id: number;
@@ -413,8 +414,8 @@ export function AlertPolicyEditor({ policies, apiToken, apiBaseUrl, onAdd, onUpd
       setCategoriesError(null);
 
       try {
-        const baseUrl = apiBaseUrl ?? "https://dev.lunchmoney.app";
-        const response = await fetch(`${baseUrl}/v1/categories`, {
+        const baseUrl = resolveBaseUrl(apiBaseUrl);
+        const response = await fetch(`${baseUrl}/categories?format=flattened`, {
           headers: {
             Authorization: `Bearer ${apiToken}`,
           },

@@ -122,10 +122,10 @@ export class EmailSender implements NotificationSender {
       policyName: "Test Policy",
       categoryId: 0,
       categoryName: "Test Category",
-      budgetAmount: 50000, // $500
-      spentAmount: 42500, // $425
+      budgetAmount: 500, // $500
+      spentAmount: 425, // $425
       percentUsed: 85,
-      remaining: 7500, // $75
+      remaining: 75, // $75
       highestThreshold: 80,
       message: "This is a test notification from LunchMonitor",
       channels: ["email"],
