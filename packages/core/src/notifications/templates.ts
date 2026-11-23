@@ -8,7 +8,7 @@ function formatCurrency(amount: number, currency: string = "USD"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
-  }).format(amount / 100); // LunchMoney uses cents
+  }).format(amount); // LunchMoney amounts are in major units (dollars), not cents
 }
 
 /**

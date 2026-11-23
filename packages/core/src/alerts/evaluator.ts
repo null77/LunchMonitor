@@ -6,7 +6,7 @@ import type {
   TriggeredAlertState,
 } from "../config/schema";
 import type { Budget } from "../api/types";
-import { calculateBudgetUtilization } from "../api/lunchmoney";
+import { calculateBudgetUtilization, withoutRedundantGroups } from "../api/lunchmoney";
 import type {
   CheckResult,
   TriggeredAlert,
@@ -180,8 +180,15 @@ export function evaluateBudgets(
   const skippedDueToCooldown: TriggeredAlert[] = [];
   const enabledPolicies = config.policies.filter((p) => p.enabled);
 
+  // A group's budget is the sum of its children's. Under a global policy, alert
+  // on the budgeted children and skip their group so the same money isn't
+  // reported twice; a group is still checked if none of its children has a budget.
+  const budgeted = budgets.filter((b) => calculateBudgetUtilization(b).budgetAmount !== 0);
+  const globalBudgets = withoutRedundantGroups(budgeted);
+
   for (const policy of enabledPolicies) {
-    for (const budget of budgets) {
+    const candidates = policy.scope.type === "global" ? globalBudgets : budgets;
+    for (const budget of candidates) {
       if (!matchesPolicyScope(budget, policy)) continue;
 
       const utilization = calculateBudgetUtilization(budget);

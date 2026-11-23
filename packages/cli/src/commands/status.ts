@@ -3,6 +3,7 @@ import {
   getDefaultConfigPath,
   LunchMoneyClient,
   calculateBudgetUtilization,
+  withoutRedundantGroups,
 } from "@lunchmonitor/core";
 
 export interface StatusOptions {
@@ -39,11 +40,11 @@ export async function status(options: StatusOptions): Promise<number> {
     }
 
     // Format currency
-    const formatCurrency = (cents: number): string => {
+    const formatCurrency = (amount: number): string => {
       return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: config.settings.currency ?? "USD",
-      }).format(cents / 100);
+      }).format(amount); // LunchMoney amounts are in major units (dollars), not cents
     };
 
     // Print header
@@ -75,8 +76,10 @@ export async function status(options: StatusOptions): Promise<number> {
 
     console.log("-".repeat(65));
 
-    // Summary
-    const total = activeBudgets.reduce(
+    // Totals and counts skip group rows whose children are listed, since a
+    // group's row is the sum of its children
+    const countable = withoutRedundantGroups(activeBudgets);
+    const total = countable.reduce(
       (acc, b) => ({
         spent: acc.spent + b.utilization.spentAmount,
         budget: acc.budget + b.utilization.budgetAmount,
@@ -90,8 +93,8 @@ export async function status(options: StatusOptions): Promise<number> {
     );
 
     // Count warnings/exceeded
-    const exceeded = activeBudgets.filter((b) => b.utilization.percentUsed >= 100).length;
-    const warnings = activeBudgets.filter(
+    const exceeded = countable.filter((b) => b.utilization.percentUsed >= 100).length;
+    const warnings = countable.filter(
       (b) => b.utilization.percentUsed >= 80 && b.utilization.percentUsed < 100
     ).length;
 
