@@ -11,7 +11,7 @@
     "build:web": "bun run --cwd packages/web build",
     "dev:web": "bun run --cwd packages/web dev",
     "test": "bun test",
-    "typecheck": "tsc --build",
+    "typecheck": "tsc --build && tsc -p packages/core/tsconfig.test.json",
     "cli": "bun run packages/cli/src/index.ts"
   },
   "devDependencies": {
